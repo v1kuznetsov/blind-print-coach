@@ -29,7 +29,7 @@ export default function Page() {
       </button>
       <div className="p-2 border rounded-2xl ">
         <p>
-          s/m: {symbolsPerMin} accuracy: {accuracy}|{currentMistake.current}|
+          s/m: {symbolsPerMin} accuracy:{" "}
           {round(100 - accuracy) < 0 ? 0 : round(100 - accuracy)}%
         </p>
       </div>
@@ -84,13 +84,15 @@ export default function Page() {
             )
           );
           setAccuracy(
-            round((currentMistake.current / event.target.value.length) * 100)
+            round(
+              (currentMistake.current >= event.target.value.length
+                ? (currentMistake.current = event.target.value.length)
+                : currentMistake.current / event.target.value.length) * 100
+            )
           );
         }}
         onKeyUp={(event) => {
           const input = getInputElement();
-          console.log(input.value.length);
-
           if (
             input.value.length === 0 ||
             (event.key === "Enter" && input.value !== "")
