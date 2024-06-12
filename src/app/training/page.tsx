@@ -1,5 +1,6 @@
 "use client";
 
+import { round } from "@/lib/utils";
 import { arrayOfText } from "@/text";
 import { useRef, useState } from "react";
 
@@ -16,13 +17,23 @@ export default function Page() {
 
   return (
     <div className="flex flex-col justify-center items-center gap-4 h-screen w-content">
-      <div className="p-2 border rounded-full ">
+      <button
+        className="bg-gray-200 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-offset-2"
+        role="switch"
+        type="button"
+      >
+        <span
+          aria-hidden="true"
+          className="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+        ></span>
+      </button>
+      <div className="p-2 border rounded-2xl ">
         <p>
-          s/m: {symbolsPerMin} accuracy:{" "}
-          {100 - accuracy < 0 ? 0 : 100 - accuracy}%
+          s/m: {symbolsPerMin} accuracy: {accuracy}|{currentMistake.current}|
+          {round(100 - accuracy) < 0 ? 0 : round(100 - accuracy)}%
         </p>
       </div>
-      <div className="p-2 w-content border rounded-full">
+      <div className="p-2 w-content border rounded-2xl">
         {textToPrint.split("").map((letter, index) => {
           const input = getInputElement();
           let color;
@@ -44,10 +55,12 @@ export default function Page() {
       </div>
       <input
         ref={inputRef}
-        className="w-content border-2 border-black rounded-full p-2 outline-none"
+        className="w-content border-2 border-zinc-600 rounded-2xl p-2 outline-none focus:border-black"
         type="text"
-        placeholder="Start typing..."
+        placeholder="Start typing ;)"
         id="input"
+        maxLength={textToPrint.slice().length}
+        autoFocus
         onChange={(event) => {
           if (symbolString === "") {
             setStartTime(performance.now());
@@ -71,17 +84,16 @@ export default function Page() {
             )
           );
           setAccuracy(
-            Math.floor(
-              (currentMistake.current / event.target.value.length) * 100 * 100
-            ) / 100
+            round((currentMistake.current / event.target.value.length) * 100)
           );
-          console.log(currentMistake.current, event.target.value.length);
         }}
-        onKeyDown={(event) => {
+        onKeyUp={(event) => {
+          const input = getInputElement();
+          console.log(input.value.length);
+
           if (
-            event.key === "Enter" &&
-            inputRef.current !== null &&
-            inputRef.current.value !== ""
+            input.value.length === 0 ||
+            (event.key === "Enter" && input.value !== "")
           ) {
             setTextToPrint(
               arrayOfText[Math.floor(Math.random() * arrayOfText.length)]
@@ -89,11 +101,10 @@ export default function Page() {
             setStartTime(0);
             setSymbolString("");
             setSymbolsCount(0);
-            if (inputRef.current !== null) {
-              inputRef.current.value = "";
+            if (input !== null) {
+              input.value = "";
             }
             currentMistake.current = 0;
-          } else if (event.key === "Backspace") {
           }
         }}
       />
