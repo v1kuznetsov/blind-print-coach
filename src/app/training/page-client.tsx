@@ -16,24 +16,24 @@ export default function TrainingPage() {
   const getInputElement = () => inputRef.current!;
 
   return (
-    <div className="flex flex-col justify-center items-center gap-4 h-screen w-content">
+    <div className="flex h-screen w-content flex-col items-center justify-center gap-4">
       <button
-        className="bg-gray-200 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-offset-2"
+        className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-offset-2"
         role="switch"
         type="button"
       >
         <span
           aria-hidden="true"
-          className="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+          className="pointer-events-none inline-block h-5 w-5 translate-x-0 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
         ></span>
       </button>
-      <div className="p-2 border rounded-2xl ">
+      <div className="rounded-2xl border p-2">
         <p>
           s/m: {symbolsPerMin} accuracy:{" "}
           {round(100 - accuracy) < 0 ? 0 : round(100 - accuracy)}%
         </p>
       </div>
-      <div className="p-2 w-content border rounded-2xl">
+      <div className="w-content rounded-2xl border p-2">
         {textToPrint.split("").map((letter, index) => {
           const input = getInputElement();
           let color;
@@ -55,7 +55,7 @@ export default function TrainingPage() {
       </div>
       <input
         ref={inputRef}
-        className="w-content border-2 border-zinc-600 rounded-2xl p-2 outline-none focus:border-black"
+        className="w-content rounded-2xl border-2 border-zinc-600 p-2 outline-none focus:border-black"
         type="text"
         placeholder="Start typing ;)"
         id="input"
@@ -72,7 +72,7 @@ export default function TrainingPage() {
             event.target.value.slice(-1) !==
             textToPrint.slice(
               event.target.value.length - 1,
-              event.target.value.length
+              event.target.value.length,
             )
           ) {
             currentMistake.current++;
@@ -80,15 +80,15 @@ export default function TrainingPage() {
           //end if
           setSymbolsPerMin(
             Math.round(
-              symbolsCount / ((performance.now() - startTime) / 1000 / 60)
-            )
+              symbolsCount / ((performance.now() - startTime) / 1000 / 60),
+            ),
           );
           setAccuracy(
             round(
               (currentMistake.current >= event.target.value.length
                 ? (currentMistake.current = event.target.value.length)
-                : currentMistake.current / event.target.value.length) * 100
-            )
+                : currentMistake.current / event.target.value.length) * 100,
+            ),
           );
         }}
         onKeyUp={(event) => {
@@ -98,7 +98,7 @@ export default function TrainingPage() {
             (event.key === "Enter" && input.value !== "")
           ) {
             setTextToPrint(
-              arrayOfText[Math.floor(Math.random() * arrayOfText.length)]
+              arrayOfText[Math.floor(Math.random() * arrayOfText.length)],
             );
             setStartTime(0);
             setSymbolString("");

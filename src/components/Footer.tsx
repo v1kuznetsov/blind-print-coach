@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="flex justify-center items-center mt-auto w-content border-t-2">
+    <footer className="mt-auto flex w-content items-center justify-center border-t-2">
       <p className="p-4">
         Ⓒ2024 <a href="/">BlintPrintCoach.</a> All right reserved.
       </p>

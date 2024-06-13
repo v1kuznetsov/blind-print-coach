@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`flex flex-col items-center gap-2 h-screen ${roboto.className}`}
+        className={`flex h-screen flex-col items-center gap-2 ${roboto.className}`}
       >
         <Header />
         {children}
