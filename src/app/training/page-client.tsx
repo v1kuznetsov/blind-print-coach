@@ -6,51 +6,50 @@ import { useRef, useState } from "react";
 
 export default function TrainingPage() {
   const [symbolsCount, setSymbolsCount] = useState(0);
+  const [wordsCount, setWordsCount] = useState(0);
   const [symbolString, setSymbolString] = useState("");
   const [startTime, setStartTime] = useState(0);
   const [symbolsPerMin, setSymbolsPerMin] = useState(0);
+  const [wordsPerMin, setWordsPerMin] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
   const [textToPrint, setTextToPrint] = useState(arrayOfText[0]);
   const inputRef = useRef<HTMLInputElement>(null);
   const currentMistake = useRef(0);
   const getInputElement = () => inputRef.current!;
+  let wordLength = 0;
 
   return (
     <div className="flex h-screen w-content flex-col items-center justify-center gap-4">
-      <button
-        className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-offset-2"
-        role="switch"
-        type="button"
-      >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none inline-block h-5 w-5 translate-x-0 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-        ></span>
-      </button>
       <div className="rounded-2xl border p-2">
         <p>
-          s/m: {symbolsPerMin} accuracy:{" "}
+          CPM: {symbolsPerMin} WPM: {wordsPerMin} accuracy:{" "}
           {round(100 - accuracy) < 0 ? 0 : round(100 - accuracy)}%
         </p>
       </div>
       <div className="w-content rounded-2xl border p-2">
-        {textToPrint.split("").map((letter, index) => {
-          const input = getInputElement();
-          let color;
-          if (index < symbolString.length) {
-            if (letter === input.value[index]) {
-              color = "text-green-800";
+        {textToPrint.split(" ").map((word, index) => {
+          word += " ";
+          let w = word.split("").map((letter, index) => {
+            const input = getInputElement();
+            let color;
+            index += wordLength;
+            if (index < symbolString.length) {
+              if (letter === input.value[index]) {
+                color = "text-green-800";
+              } else {
+                color = "text-red-800";
+              }
             } else {
-              color = "text-red-800";
+              color = "";
             }
-          } else {
-            color = "";
-          }
-          return (
-            <span className={color} key={letter + index}>
-              {letter}
-            </span>
-          );
+            return (
+              <span className={color} key={letter + index}>
+                {letter}
+              </span>
+            );
+          });
+          wordLength += word.length;
+          return <span key={word + index}>{w}</span>;
         })}
       </div>
       <input
@@ -58,6 +57,7 @@ export default function TrainingPage() {
         className="w-content rounded-2xl border-2 border-zinc-600 p-2 outline-none focus:border-black"
         type="text"
         placeholder="Start typing ;)"
+        // hidden
         id="input"
         maxLength={textToPrint.slice().length}
         autoFocus
@@ -78,28 +78,40 @@ export default function TrainingPage() {
             currentMistake.current++;
           }
           //end if
-          setSymbolsPerMin(
-            Math.round(
-              symbolsCount / ((performance.now() - startTime) / 1000 / 60),
-            ),
-          );
-          setAccuracy(
-            round(
-              (currentMistake.current >= event.target.value.length
-                ? (currentMistake.current = event.target.value.length)
-                : currentMistake.current / event.target.value.length) * 100,
-            ),
-          );
         }}
         onKeyUp={(event) => {
           const input = getInputElement();
+
+          if (event.key === " ") {
+            setWordsCount((prev) => prev + 1);
+          }
           if (
             input.value.length === 0 ||
-            (event.key === "Enter" && input.value !== "")
+            (event.key === "Enter" && input.value.length === textToPrint.length)
           ) {
+            //set table score
+            setSymbolsPerMin(
+              Math.round(
+                symbolsCount / ((performance.now() - startTime) / 1000 / 60),
+              ),
+            );
+            setWordsPerMin(
+              Math.round(
+                wordsCount / ((performance.now() - startTime) / 1000 / 60),
+              ),
+            );
+            setAccuracy(
+              round(
+                (currentMistake.current >= input.value.length
+                  ? (currentMistake.current = input.value.length)
+                  : currentMistake.current / input.value.length) * 100,
+              ),
+            );
+            //end set table score
             setTextToPrint(
               arrayOfText[Math.floor(Math.random() * arrayOfText.length)],
             );
+            //erase data
             setStartTime(0);
             setSymbolString("");
             setSymbolsCount(0);
@@ -107,9 +119,21 @@ export default function TrainingPage() {
               input.value = "";
             }
             currentMistake.current = 0;
+            //end erase data
           }
         }}
       />
+      <div className="rounded-2xl border p-2">
+        <label htmlFor="charsInText">Chars in text</label>
+        <select name="charsInText">
+          <option>20</option>
+          <option>40</option>
+          <option>60</option>
+        </select>
+        <button type="button" name="textType" id="punctuation">
+          Punctuation
+        </button>
+      </div>
     </div>
   );
 }
